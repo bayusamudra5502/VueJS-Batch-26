@@ -1,0 +1,7 @@
+Saya mendalami programming sejak menginjak SMA.
+Saya saat ini sedang fokus dalam mempelajari bidang front-end development.
+Saat ini saya cukup lancar dalam menggunakan JS, HTML, dan CSS.
+
+Saya memiliki pengalaman pertama dalam proyek, yaitu saat SMA. Saat itu,
+saya membuat proyek bersama teman-teman saya untuk membuat sebuah program
+menggunakan VB.NET.
