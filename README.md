@@ -1,1 +1,1 @@
-# VueJS-Batch-26
+# VueJS Batch 26
