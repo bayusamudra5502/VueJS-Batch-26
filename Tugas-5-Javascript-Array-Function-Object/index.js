@@ -37,16 +37,8 @@ console.log();
 // SOAL 3
 function hitung_huruf_vokal(text) {
   var vokal = 0;
-  for (var i = 0; i < text.length; i++) {
-    if (
-      text[i].toLowerCase() === "a" ||
-      text[i].toLowerCase() === "i" ||
-      text[i].toLowerCase() === "u" ||
-      text[i].toLowerCase() === "e" ||
-      text[i].toLowerCase() === "o"
-    )
-      vokal++;
-  }
+  for (var i = 0; i < text.length; i++)
+    if ("aiueo".indexOf(text[i].toLowerCase()) >= 0) vokal++;
 
   return vokal;
 }
