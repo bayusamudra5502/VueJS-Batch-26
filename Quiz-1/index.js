@@ -3,7 +3,13 @@ var kalimat_1 = " Halo nama saya Muhammad Iqbal Mubarok ";
 var kalimat_2 = "Saya Iqbal";
 
 function jumlah_kata(text) {
-  var hasil = text.trim().split(" ").length;
+  var hasilText = text.trim().split(" ");
+  var hasil = hasilText.length;
+
+  if (hasilText[0] === "") {
+    hasil = 0;
+  }
+
   console.log(hasil);
 
   return hasil;
