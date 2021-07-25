@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      li {
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <form ref="form" @submit.prevent="onSubmit">
+        <input
+          type="text"
+          ref="nameInput"
+          name="nama"
+          id="nama"
+          v-model="inputNama"
+          required
+        />
+        <button ref="submit">add</button>
+      </form>
+      <div>
+        <ul>
+          <li v-for="user in users" :key="user.name">
+            {{user.name}}
+            <button @click="onClickEdit(user.name)">Edit</button> ||
+            <button @click="onClickDelete(user.name)">Delete</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script>
+      const vm = new Vue({
+        el: "#app",
+        data: {
+          editData: {
+            onEdit: false,
+            data: "",
+          },
+          inputNama: "",
+          users: [
+            {
+              name: "Muhammad Iqbal Mubarok",
+            },
+            {
+              name: "Ruby Purwanti",
+            },
+            {
+              name: "Faqih Muhammad",
+            },
+          ],
+        },
+        methods: {
+          resetEdit() {
+            this.$refs.submit.innerText = "add";
+            this.editData = {
+              onEdit: false,
+              data: "",
+            };
+            this.inputNama = "";
+          },
+          onSubmit() {
+            if (this.editData.onEdit) {
+              const newUsers = this.users.map(({ name }) => {
+                if (name === this.editData.data) {
+                  return {
+                    name: this.inputNama,
+                  };
+                } else {
+                  return { name };
+                }
+              });
+              this.users = newUsers;
+
+              this.resetEdit();
+            } else {
+              this.users.push({
+                name: this.inputNama,
+              });
+            }
+
+            this.inputNama = "";
+          },
+          onClickEdit(data) {
+            this.inputNama = data;
+            this.$refs.nameInput.focus();
+            this.$refs.submit.innerText = "Update";
+            this.editData = {
+              onEdit: true,
+              data,
+            };
+          },
+          onClickDelete(data) {
+            if (confirm("Anda yakin?")) {
+              this.users = this.users.filter(({ name }) => {
+                return name !== data;
+              });
+
+              this.resetEdit();
+            }
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
