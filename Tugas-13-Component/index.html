@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      form {
+        background-color: #ddd;
+        padding: 23px;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+        text-align: center;
+      }
+
+      label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      .form-component {
+        margin-bottom: 10px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 5px;
+        font-family: inherit;
+      }
+
+      button {
+        margin: 3px;
+        padding: 5px;
+        min-width: 100px;
+      }
+
+      table {
+        width: 90%;
+        margin: 20px auto;
+      }
+
+      th,
+      td {
+        padding: 5px;
+      }
+
+      table,
+      td,
+      th {
+        border: 1pt solid black;
+        border-collapse: collapse;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <form @submit.prevent="onSubmit">
+        <div class="form-component">
+          <h1>{{label.formTitle}}</h1>
+        </div>
+        <div class="form-component">
+          <label for="name">Name</label>
+          <input
+            type="text"
+            placeholder="Input your name"
+            v-model="formInput.name"
+            :disabled="uploadMode.isUploadMode"
+            required
+          />
+        </div>
+        <div class="form-component">
+          <label for="name">Address</label>
+          <input
+            type="text"
+            placeholder="Input your address"
+            v-model="formInput.address"
+            :disabled="uploadMode.isUploadMode"
+            required
+          />
+        </div>
+        <div class="form-component">
+          <label for="name">Phone Number</label>
+          <input
+            type="text"
+            placeholder="Input your address"
+            v-model="formInput.no_hp"
+            :disabled="uploadMode.isUploadMode"
+            required
+          />
+        </div>
+        <div class="form-component" v-if="uploadMode.isUploadMode">
+          <label for="name">Profile Image</label>
+          <input type="file" ref="picture" required accept="image/*" />
+        </div>
+        <div class="form-component" v-if="uploadMode.isUploadMode">
+          <button>Upload Image</button>
+          <button @click="resetForm" type="button">Cancel</button>
+        </div>
+        <div class="form-component" v-else-if="editMode.isEditMode">
+          <button>Update</button>
+          <button @click="resetForm" type="button">Cancel</button>
+        </div>
+        <div class="form-component" v-else>
+          <button>Submit</button>
+        </div>
+      </form>
+      <div class="users">
+        <h1>Users List</h1>
+        <table>
+          <colgroup>
+            <col style="width: 10%; min-width: 130px" />
+            <col style="width: 15%" />
+            <col />
+            <col style="width: 15%" />
+            <col style="width: 15%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Profile Picture</th>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Phone Number</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              is="memberscomponent"
+              v-for="user in users"
+              :user="user"
+              @edit="onEdit($event)"
+              @delete="onDelete($event)"
+              @upload-profile="onUploadPicture($event)"
+            ></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script type="text/template" id="user-row">
+      <tr :key="user.id">
+        <td>
+          <img
+            style="margin: 5px auto; display: block; max-width: 120px"
+            :src="user.photo_profile ? `http://demo-api-vue.sanbercloud.com/${user.photo_profile}` : 'https://dummyimage.com/120x160'"
+            alt="No Profile"
+          />
+        </td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.address }}</td>
+        <td>{{ user.no_hp }}</td>
+        <td>
+          <button @click="$emit('edit', user.id)">Edit</button>
+          <button @click="$emit('delete', user.id)">Delete</button>
+          <button @click="$emit('upload-profile', user.id)">
+            Upload Picture
+          </button>
+        </td>
+      </tr>
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+      const BASE_URL = "http://demo-api-vue.sanbercloud.com/api";
+
+      const MembersComponent = {
+        template: "#user-row",
+        props: ["user"],
+      };
+
+      const vm = new Vue({
+        el: "#app",
+        components: {
+          memberscomponent: MembersComponent,
+        },
+        data: {
+          formInput: {
+            name: "",
+            address: "",
+            no_hp: "",
+          },
+          editMode: {
+            isEditMode: false,
+            id: null,
+          },
+          uploadMode: {
+            isUploadMode: false,
+            id: null,
+          },
+          users: [],
+        },
+        computed: {
+          label() {
+            let formTitle = "Add New User";
+
+            if (this.editMode.isEditMode) {
+              formTitle = "Edit Users";
+            } else if (this.uploadMode.isUploadMode) {
+              formTitle = "Upload Profile Picture";
+            }
+
+            return {
+              formTitle,
+            };
+          },
+        },
+        methods: {
+          addUser: async function () {
+            const form = new FormData();
+            form.append("name", this.formInput.name);
+            form.append("address", this.formInput.address);
+            form.append("no_hp", this.formInput.no_hp);
+
+            const config = {
+              method: "post",
+              url: `${BASE_URL}/member`,
+              data: form,
+            };
+
+            try {
+              await axios(config);
+              this.resetForm();
+              this.getAllUsers();
+            } catch (err) {
+              console.error(err);
+            }
+          },
+          resetForm() {
+            this.editMode = {
+              isEditMode: false,
+              id: null,
+            };
+
+            this.uploadMode = {
+              isUploadMode: false,
+              id: null,
+            };
+
+            this.formInput = {
+              name: "",
+              address: "",
+              no_hp: "",
+            };
+          },
+          getAllUsers: async function () {
+            const config = {
+              method: "get",
+              url: `${BASE_URL}/member`,
+            };
+
+            try {
+              const {
+                data: { members },
+              } = await axios(config);
+
+              this.users = members;
+            } catch (err) {
+              console.error(err);
+            }
+          },
+          onDelete: async function (id) {
+            const config = {
+              method: "post",
+              url: `${BASE_URL}/member/${id}`,
+              params: {
+                _method: "DELETE",
+              },
+            };
+
+            if (confirm("Are you sure to delete this data?")) {
+              try {
+                await axios(config);
+                alert("Data sudah dihapus");
+                this.getAllUsers();
+                this.resetForm();
+              } catch (err) {
+                console.error(err);
+              }
+            }
+          },
+          onEdit: async function (userID) {
+            this.resetForm();
+            const config = {
+              method: "get",
+              url: `${BASE_URL}/member/${userID}`,
+            };
+
+            const {
+              member: { name, id, address, no_hp },
+            } = (await axios(config)).data;
+
+            this.formInput = {
+              name,
+              address,
+              no_hp,
+            };
+
+            this.editMode = {
+              isEditMode: true,
+              id,
+            };
+          },
+          onUploadPicture: async function (userID) {
+            this.resetForm();
+
+            const config = {
+              method: "get",
+              url: `${BASE_URL}/member/${userID}`,
+            };
+
+            const {
+              member: { name, id, address, no_hp },
+            } = (await axios(config)).data;
+
+            this.formInput = {
+              name,
+              address,
+              no_hp,
+            };
+
+            this.uploadMode = {
+              isUploadMode: true,
+              id,
+            };
+          },
+          onSubmit() {
+            if (this.editMode.isEditMode) {
+              this.editUser(this.editMode.id);
+            } else if (this.uploadMode.isUploadMode) {
+              this.uploadPicture(this.uploadMode.id);
+            } else {
+              this.addUser();
+            }
+          },
+          editUser: async function (id) {
+            const form = new FormData();
+            form.append("name", this.formInput.name);
+            form.append("address", this.formInput.address);
+            form.append("no_hp", this.formInput.no_hp);
+
+            const config = {
+              method: "post",
+              url: `${BASE_URL}/member/${id}`,
+              params: { _method: "PUT" },
+              data: form,
+            };
+
+            try {
+              await axios(config);
+              this.resetForm();
+              this.getAllUsers();
+            } catch (err) {
+              console.error(err);
+            }
+          },
+          uploadPicture: async function (id) {
+            const form = new FormData();
+            form.append("photo_profile", this.$refs.picture.files[0]);
+
+            const config = {
+              method: "post",
+              url: `${BASE_URL}/member/${id}/upload-photo-profile`,
+              data: form,
+            };
+
+            try {
+              await axios(config);
+              this.resetForm();
+              this.getAllUsers();
+            } catch (err) {
+              console.error(err);
+            }
+          },
+        },
+        created() {
+          this.getAllUsers();
+        },
+      });
+    </script>
+  </body>
+</html>
