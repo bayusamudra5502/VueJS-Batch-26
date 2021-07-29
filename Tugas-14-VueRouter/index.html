@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tugas 14 : Vue Router</title>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Belajar Routing</h1>
+      <h2>Auth</h2>
+      <p>isLogged: {{ auth.isLogged }}</p>
+      <p>isAdmin: {{ auth.isAdmin }}</p>
+      <button @click="onLogin(false)" :disabled="auth.isLogged">Login</button>
+      <button @click="onLogin(true)" :disabled="auth.isLogged">
+        Login as Admin
+      </button>
+      <button @click="onLogout" :disabled="!auth.isLogged">Logout</button>
+      <hr />
+      <router-link to="/">Home</router-link>
+      <router-link to="/halaman1">Halaman 1</router-link>
+      <router-link to="/halaman2">Halaman 2</router-link>
+      <router-link to="/halaman3">Halaman 3</router-link>
+      <hr />
+      <router-view />
+    </div>
+
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="script.js" type="module"></script>
+  </body>
+</html>
